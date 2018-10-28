@@ -1,0 +1,7 @@
+- name: Deploy common-tunning
+  hosts: nms_group
+  any_errors_fatal: true
+  roles:
+    - {role: 'snmpd-UDomain', tags: 'snmpd-UDomain'}
+#    - {role: 'common-tuning', tags: 'common-tuning'}
+

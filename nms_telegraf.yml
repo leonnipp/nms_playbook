@@ -1,0 +1,109 @@
+- hosts: nms_group
+
+  tasks:
+
+
+  - name: "Add yum repository | RedHat"
+    template:
+      src: ./templates/influxdb.repo
+      dest: /etc/yum.repos.d/influxdb.repo
+
+  - name: "Install telegraf package | RedHat"
+    yum:
+      name: "telegraf"
+      state: "present"
+
+  - name: Update tcpping script for edgehk01
+    template:
+      src: ./templates/nms_scripts/edgehk01.sh
+      dest: /opt/edgehk01.sh
+      mode: "755"
+
+  - name: Update tcpping script for edgehk02
+    template:
+      src: ./templates/nms_scripts/edgehk02.sh
+      dest: /opt/edgehk02.sh
+      mode: "755"
+ 
+  - name: Update tcpping script for edgehk03
+    template:
+      src: ./templates/nms_scripts/edgehk03.sh
+      dest: /opt/edgehk03.sh
+      mode: "755"
+
+  - name: Update tcpping script for edgehk04
+    template:
+      src: ./templates/nms_scripts/edgehk04.sh
+      dest: /opt/edgehk04.sh
+      mode: "755"
+
+  - name: Update tcpping script for edgeus01
+    template:
+      src: ./templates/nms_scripts/edgeus01.sh
+      dest: /opt/edgeus01.sh
+      mode: "755"
+
+  - name: Update tcpping script for edgeus02
+    template:
+      src: ./templates/nms_scripts/edgeus02.sh
+      dest: /opt/edgeus02.sh
+      mode: "755"
+
+  - name: Update tcpping script for origin01
+    template:
+      src: ./templates/nms_scripts/origin01.sh
+      dest: /opt/origin01.sh
+      mode: "755"
+
+  - name: Update tcpping script for origin02
+    template:
+      src: ./templates/nms_scripts/origin02.sh
+      dest: /opt/origin02.sh
+      mode: "755"
+
+  - name: Update tcpping script for game
+    template:
+      src: ./templates/nms_scripts/game.sh
+      dest: /opt/game.sh
+      mode: "755"
+
+  - name: Update traceroute script
+    template:
+      src: ./templates/nms_scripts/amptools-tr.py
+      dest: /opt/amptools-tr.py
+      mode: "755"
+
+  - name: Update traceroute target for traceroute
+    template:
+      src: ./templates/nms_scripts/traceconfig.py
+      dest: /opt/traceconfig.py
+      mode: "666"
+    tags: telegraf_conf 
+
+  - name:
+    yum:
+      name: python-pip
+      state: present
+
+  - name: install pip geohash
+    pip:
+      name: geohash
+
+  - name: enable sudoer to telegraf
+    template:
+      src: ./templates/020_telegraf-nopasswd
+      dest: /etc/sudoers.d/020_telegraf-nopasswd
+
+  - name: Update telegraf config
+    template: 
+      src: ./templates/nms_telegraf.conf
+      dest: /etc/telegraf/telegraf.conf
+    tags: telegraf_conf
+    notify: "Restart telegraf"
+
+  handlers:
+  - name: Restart telegraf
+    service:
+      name: telegraf
+      enabled: yes
+      state: restarted
